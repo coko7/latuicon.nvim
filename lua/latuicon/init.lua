@@ -12,6 +12,16 @@ function M.setup(opts)
 	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 end
 
+--- termopen() is deprecated as of nvim 0.11 in favor of jobstart({term=true}),
+--- keeping backward support for now
+local function open_terminal(cmd_tbl, opts)
+	if vim.fn.has("nvim-0.11") == 1 then
+		opts.term = true
+		return vim.fn.jobstart(cmd_tbl, opts)
+	end
+	return vim.fn.termopen(cmd_tbl, opts)
+end
+
 --- Opens latuicon in a floating terminal and inserts the picked icon.
 --- @param callback fun(icon: string)|nil defaults to inserting at cursor
 function M.pick(callback)
@@ -43,8 +53,7 @@ function M.pick(callback)
 		env = { ICON_PICKER_THEME = cfg.theme }
 	end
 
-	vim.fn.jobstart({ "sh", "-c", cmd }, {
-		term = true,
+	open_terminal({ "sh", "-c", cmd }, {
 		env = env,
 		on_exit = function(_, code)
 			if vim.api.nvim_win_is_valid(win) then
