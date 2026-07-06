@@ -43,7 +43,8 @@ function M.pick(callback)
 		env = { ICON_PICKER_THEME = cfg.theme }
 	end
 
-	vim.fn.termopen({ "sh", "-c", cmd }, {
+	vim.fn.jobstart({ "sh", "-c", cmd }, {
+		term = true,
 		env = env,
 		on_exit = function(_, code)
 			if vim.api.nvim_win_is_valid(win) then
